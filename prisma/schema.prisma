@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        Role          @default(CUSTOMER)
+  phone       String
+  createdAt   DateTime      @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt   DateTime      @updatedAt @map("updated_At") @db.Timestamp(0)
+  tourCompany TourCompany[]
+  booking     Booking[]
+}
+
+enum Role {
+  CUSTOMER
+  OWNER
+}
+
+model TourCompany {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int      @map("user_Id")
+  name        String
+  tourNumber  String
+  line        String?
+  phoneNumber String
+  createdAt   DateTime @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt   DateTime @updatedAt @map("updated_At") @db.Timestamp(0)
+  trip        Trip[]
+}
+
+model Trip {
+  id Int @id @default(autoincrement())
+
+  tourCompany   TourCompany @relation(fields: [tourCompanyId], references: [id], onDelete: Cascade)
+  tourCompanyId Int         @map("tourCompany_Id")
+
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId Int      @map("location_Id")
+
+  bookings Booking[]
+
+  price     Int
+  detail    String
+  quantity  Int
+  Image     Image[]
+  startdate DateTime
+  enddate   DateTime
+  createdAt DateTime  @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt DateTime  @updatedAt @map("updated_At") @db.Timestamp(0)
+}
+
+model Booking {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @map("user_Id")
+
+  name          String
+  age           Int?
+  gender        Gender?       @default(OTHER)
+  phoneNumber   String
+  LINE          String?
+  payMentStatus PayMentStatus @default(PENDING)
+  dateBooking   DateTime      @default(now()) @db.Timestamp(0)
+
+  trip   Trip? @relation(fields: [tripId], references: [id])
+  tripId Int?
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PayMentStatus {
+  SUCCESS
+  PENDING
+  CANCEL
+}
+
+model Location {
+  id          Int      @id @default(autoincrement())
+  name        String
+  houseNumber String?
+  county      String?
+  district    String?
+  suDistrict  String?
+  province    String?
+  zipCode     String?
+  createdAt   DateTime @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt   DateTime @updatedAt @map("updated_At") @db.Timestamp(0)
+  trip        Trip[]
+}
+
+model Image {
+  id        Int    @id @default(autoincrement())
+  assetId   String
+  publicId  String
+  url       String
+  secureUrl String
+
+  trip   Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId Int  @map("trip_Id")
+
+  createdAt DateTime @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_At") @db.Timestamp(0)
+}
