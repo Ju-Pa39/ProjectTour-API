@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const { authCheck, ownerCheck} = require("../middlewares/authCheck")
-const { postTour, getTour, updateTour, deleteTour, postTrip, getTrip, updateTrip, deleteTrip, getTripById,listTrip,searchFilters } = require("../controllers/tour-controller")
+const { postTour, getTour, updateTour, deleteTour, postTrip, getTrip, updateTrip, deleteTrip, getTripById,listTrip,searchFilters, getLocationById } = require("../controllers/tour-controller")
 
 
 //Tour
@@ -18,4 +18,5 @@ router.patch("/getTrip/:id",authCheck,ownerCheck, updateTrip)
 router.delete("/getTrip/:id",authCheck,ownerCheck, deleteTrip)
 router.post("/tripBy", listTrip)
 router.post("/search", searchFilters)
+router.get("/getLocationById/:id",getLocationById)
 module.exports = router

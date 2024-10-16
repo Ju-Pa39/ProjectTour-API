@@ -144,6 +144,10 @@ exports.getTripById = async (req, res) => {
         const trip = await prisma.trip.findUnique({
             where: {
                 id: +id
+            },
+            include: {
+                location: true,
+                tourCompany: true
             }
         })
         res.status(200).json({ trip })
@@ -309,5 +313,28 @@ exports.searchFilters = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Server Error" })
+    }
+}
+
+exports.getLocationById = async (req, res) => {
+    try {
+        const { id } = req.params
+        const location = await prisma.location.findUnique({
+            where: {
+                id: +id
+            },
+            include: {
+                trip: {
+                    include: {
+                        tourCompany: true
+                    }
+                }
+                
+            }
+        })
+        res.send(location)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: "Server getLocationById Error" })
     }
 }
