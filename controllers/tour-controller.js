@@ -22,13 +22,10 @@ exports.postTour = async (req, res) => {
 
 exports.getTour = async (req, res) => {
     try {
-        const tour = await prisma.tourCompany.findMany({
-            include: {
-                user: true,
-                trip: true
-            }
-        })
+        const tour = await prisma.tourCompany.findMany()
+        console.log(tour)
         res.status(200).json({ tour })
+
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Server Error" })
@@ -102,10 +99,8 @@ exports.postTrip = async (req, res) => {
                 detail,
                 price,
                 quantity,
-                startdate: new Date(Date.now()),
-                enddate: new Date(Date.now()),
-                // startdate: new Date(startdate), // ตรวจสอบว่ามีค่าและแปลงเป็น Date
-                // enddate: new Date(enddate) 
+                startdate: (startdate),
+                enddate: (enddate),
                 Image: {
                     create: image.map((item) => ({
                         assetId: item.assetId,
@@ -292,7 +287,7 @@ const hdlStartDate = async (req, res, startdate) => {
         res.status(500).json({ message: "Server Error" })
     }
 }
-
+//ใช้ตอน search ตามจำนวนเงิน
 exports.searchFilters = async (req, res) => {
     try {
         const { query, price,startdate } = req.body
@@ -309,13 +304,14 @@ exports.searchFilters = async (req, res) => {
             console.log('startdate-->', startdate)
             await hdlStartDate (req, res ,startdate)
         }
-        // res.send("testtttt")
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Server Error" })
     }
 }
 
+
+//ใช้ตอนกดการ์ดเลือกสถานที่หลัง search
 exports.getLocationById = async (req, res) => {
     try {
         const { id } = req.params
@@ -338,3 +334,45 @@ exports.getLocationById = async (req, res) => {
         res.status(500).json({ message: "Server getLocationById Error" })
     }
 }
+
+
+
+//ใช้แสดงทริปกรณียังไม่มีการ Search
+exports.getTripByDate = async (req, res) => {
+    try {
+        // const { startdate, enddate } = req.body
+        const today = new Date()
+        const dayOnly = new Date(today.setHours(0, 0, 0, 0))
+        const sevenDay = new Date(today.setDate(today.getDate() + 7))
+        console.log("Ju test",sevenDay)
+        const getTripByDate = await prisma.trip.findMany({
+            where: {
+                startdate: {
+                    gte: dayOnly,
+                    lte: sevenDay
+                }
+            },
+            include: {
+                location: true,
+                tourCompany: true
+            }
+        })
+        res.send(getTripByDate)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: "Server Error" })
+    }
+}
+
+
+//ใช้สำหรับตอนสร้างทริปของ owner
+exports.getLocation = async (req, res) => {
+    try {
+        const LocationTour = await prisma.location.findMany()
+        res.send(LocationTour)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: "Server LocationTour Error" })
+    }
+}
+
