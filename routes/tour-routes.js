@@ -6,7 +6,7 @@ const { postTour, getTour, updateTour, deleteTour, postTrip, getTrip, updateTrip
 
 //Tour
 router.post("/createTour",authCheck,ownerCheck, postTour)
-router.get("/getTour", getTour)//********* */
+router.get("/getTour", getTour)//ใช้
 router.patch("/getTour/:id",authCheck,ownerCheck, updateTour)
 router.delete("/getTour/:id",authCheck,ownerCheck, deleteTour)
 

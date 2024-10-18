@@ -336,7 +336,6 @@ exports.getLocationById = async (req, res) => {
 }
 
 
-
 //ใช้แสดงทริปกรณียังไม่มีการ Search
 exports.getTripByDate = async (req, res) => {
     try {
