@@ -58,7 +58,7 @@ model Trip {
 
   price     Int
   detail    String
-  quantity  Int
+  quantity  Int?
   Image     Image[]
   startdate DateTime
   enddate   DateTime

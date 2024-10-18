@@ -9,7 +9,7 @@ const tourRouter = require("./routes/tour-routes")
 const bookingRouter = require("./routes/booking-router")
 
 app.use(morgen('dev'))
-app.use(express.json())
+app.use(express.json({limit: '10mb'}))
 app.use(cors())
 
 app.use("/auth",authRouter)

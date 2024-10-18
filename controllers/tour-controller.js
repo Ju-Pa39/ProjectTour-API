@@ -1,4 +1,13 @@
 const prisma = require("../config/prisma")
+const cloudinary = require('cloudinary').v2;
+ 
+
+// Configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // สร้างบริษัททัวร์
 exports.postTour = async (req, res) => {
@@ -91,22 +100,23 @@ exports.deleteTour = async (req, res) => {
 // สร้างบริษัททริปเพื่อเปป็นข้อมูลให้ลูกค้าเลือก
 exports.postTrip = async (req, res) => {
     try {
-        const { location_Id, tourCompany_Id, detail, price, quantity, startdate, enddate, image } = req.body
+        const { location, tour, details, price, quantity, startDate, endDate, images } = req.body
+        console.log(req.body)
         const trip = await prisma.trip.create({
             data: {
-                locationId: +location_Id,
-                tourCompanyId: +tourCompany_Id,
-                detail,
-                price,
+                locationId: +location,
+                tourCompanyId: +tour,
+                detail: details,
+                price: +price,
                 quantity,
-                startdate: (startdate),
-                enddate: (enddate),
+                startdate: new Date(startDate),
+                enddate: new Date(endDate),
                 Image: {
-                    create: image.map((item) => ({
-                        assetId: item.assetId,
-                        publicId: item.publicId,
+                    create: images.map((item) => ({
+                        assetId: item.asset_id,
+                        publicId: item.public_id,
                         url: item.url,
-                        secureUrl: item.secureUrl,
+                        secureUrl: item.secure_url
                     }))
                 }
             }
@@ -114,7 +124,7 @@ exports.postTrip = async (req, res) => {
         res.status(201).json({ message: "Trip created successfully" })
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Server Error" })
+        res.status(500).json({ message: "Server postTrip Error" })
     }
 }
 
@@ -375,3 +385,36 @@ exports.getLocation = async (req, res) => {
     }
 }
 
+
+
+exports.createImages = async (req, res) => {
+    try {
+        //code
+        // console.log(req.body)
+        const result = await cloudinary.uploader.upload(req.body.image, {
+            public_id: `Roitai-${Date.now()}`,
+            resource_type: 'auto',
+            folder: 'Ecom2024'
+        })
+        res.send(result)
+    } catch (err) {
+        //err
+        console.log(err)
+        res.status(500).json({ message: "Server Error" })
+    }
+}
+exports.removeImage = async (req, res) => {
+    try {
+        //code
+        const { public_id } = req.body
+        // console.log(public_id)
+        cloudinary.uploader.destroy(public_id, (result) => {
+            res.send('Remove Image Success!!!')
+        })
+
+    } catch (err) {
+        //err
+        console.log(err)
+        res.status(500).json({ message: "Server Error" })
+    }
+}
