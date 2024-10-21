@@ -57,13 +57,13 @@ model Trip {
   bookings Booking[]
 
   price     Int
-  detail    String
+  detail    String   @db.Text
   quantity  Int?
   Image     Image[]
   startdate DateTime
   enddate   DateTime
-  createdAt DateTime  @default(now()) @map("created_At") @db.Timestamp(0)
-  updatedAt DateTime  @updatedAt @map("updated_At") @db.Timestamp(0)
+  createdAt DateTime @default(now()) @map("created_At") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_At") @db.Timestamp(0)
 }
 
 model Booking {
@@ -72,6 +72,7 @@ model Booking {
   userId Int  @map("user_Id")
 
   name          String
+  nickName      String?
   age           Int?
   gender        Gender?       @default(OTHER)
   phoneNumber   String
@@ -79,8 +80,9 @@ model Booking {
   payMentStatus PayMentStatus @default(PENDING)
   dateBooking   DateTime      @default(now()) @db.Timestamp(0)
 
-  trip   Trip? @relation(fields: [tripId], references: [id])
+  trip   Trip?   @relation(fields: [tripId], references: [id])
   tripId Int?
+  Image  Image[]
 }
 
 enum Gender {
@@ -118,6 +120,9 @@ model Image {
 
   trip   Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
   tripId Int  @map("trip_Id")
+
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId Int?     @map("booking_Id")
 
   createdAt DateTime @default(now()) @map("created_At") @db.Timestamp(0)
   updatedAt DateTime @updatedAt @map("updated_At") @db.Timestamp(0)

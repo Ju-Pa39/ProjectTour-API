@@ -5,6 +5,6 @@ const { postBooking } = require("../controllers/booking-controller")
 const { authCheck } = require('../middlewares/authCheck')
 
 
-router.post("/booking",authCheck, postBooking)
+router.post("/booking", postBooking)//authCheck
 
 module.exports = router

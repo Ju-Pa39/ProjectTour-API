@@ -152,7 +152,8 @@ exports.getTripById = async (req, res) => {
             },
             include: {
                 location: true,
-                tourCompany: true
+                tourCompany: true,
+                Image: true
             }
         })
         res.status(200).json({ trip })
@@ -414,6 +415,64 @@ exports.removeImage = async (req, res) => {
 
     } catch (err) {
         //err
+        console.log(err)
+        res.status(500).json({ message: "Server Error" })
+    }
+}
+
+// exports.getUpcomingTrip = async (req, res) => {
+//     try {
+//         const currentDate = new Date();
+
+//         // Query trips that are after the current date and order by start date (ascending)
+//         const trip = await prisma.trip.findMany({
+//             where: {
+//                 startDate: {
+//                     gte: currentDate // ดึงข้อมูลทริปที่เริ่มหลังจากวันนี้
+//                 }
+//             },
+//             include: {
+//                 location: true,
+//                 tourCompany: true
+//             },
+//             orderBy: {
+//                 startDate: 'asc' // เรียงลำดับจากวันที่ใกล้ถึงที่สุด
+//             },
+//             take: 1 // จำกัดผลลัพธ์ให้ได้เพียง 1 รายการ
+//         })
+
+//         res.status(200).json({ trip })
+//     } catch (err) {
+//         console.log(err)
+//         res.status(500).json({ message: "Server getUpcomingTrip Error" })
+//     }
+// }
+
+
+exports.getUpcomingTrip = async (req, res) => {
+    try {
+        const today = new Date()
+        const dayOnly = new Date(today.setHours(0, 0, 0, 0))
+        const sevenDay = new Date(today.setDate(today.getDate() + 7))
+        const trip = await prisma.trip.findMany({
+            where: {
+                startdate: {
+                    gte: dayOnly,
+                    lte: sevenDay
+                }
+            },
+            include: {
+                location: true,
+                tourCompany: true,
+                Image: true
+            },
+            orderBy: {
+                startdate: 'asc' // เรียงลำดับจากวันที่ใกล้ถึงที่สุด
+            },
+            take: 1 // จำกัดผลลัพธ์ให้ได้เพียง 1 รายการ
+        })
+        res.status(200).json({ trip })
+    } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Server Error" })
     }
