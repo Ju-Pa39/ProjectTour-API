@@ -13,7 +13,7 @@ router.patch("/getTour/:id",authCheck,ownerCheck, updateTour)
 router.delete("/getTour/:id",authCheck,ownerCheck, deleteTour)
 
 //Trip
-router.post("/createTrip", postTrip)//,authCheck,ownerCheck,
+router.post("/createTrip",authCheck,ownerCheck, postTrip)//ใช้
 router.get("/getTrip", getTrip)//ใช้
 router.get("/getTrip/:id", getTripById)
 router.patch("/getTrip/:id",authCheck,ownerCheck, updateTrip)

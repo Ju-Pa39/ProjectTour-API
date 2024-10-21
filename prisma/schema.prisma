@@ -79,9 +79,9 @@ model Booking {
   LINE          String?
   payMentStatus PayMentStatus @default(PENDING)
   dateBooking   DateTime      @default(now()) @db.Timestamp(0)
-
   trip   Trip?   @relation(fields: [tripId], references: [id])
   tripId Int?
+
   Image  Image[]
 }
 
@@ -118,8 +118,8 @@ model Image {
   url       String
   secureUrl String
 
-  trip   Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  tripId Int  @map("trip_Id")
+  trip   Trip? @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId Int?  @map("trip_Id")
 
   booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   bookingId Int?     @map("booking_Id")
