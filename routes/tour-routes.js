@@ -8,16 +8,16 @@ const { postTour, getTour, updateTour, deleteTour, postTrip, getTrip, updateTrip
 
 //Tour
 router.post("/createTour",authCheck,ownerCheck, postTour)
-router.get("/getTour", getTour)//ใช้
-router.patch("/getTour/:id",authCheck,ownerCheck, updateTour)
-router.delete("/getTour/:id",authCheck,ownerCheck, deleteTour)
+router.get("/getTour",authCheck,ownerCheck, getTour)//ใช้
+router.patch("/updateTour/:id",authCheck,ownerCheck, updateTour)
+router.delete("/deleteTour/:id",authCheck,ownerCheck, deleteTour)
 
 //Trip
 router.post("/createTrip",authCheck,ownerCheck, postTrip)//ใช้
 router.get("/getTrip", getTrip)//ใช้
 router.get("/getTrip/:id", getTripById)
 router.patch("/getTrip/:id",authCheck,ownerCheck, updateTrip)
-router.delete("/getTrip/:id",authCheck,ownerCheck, deleteTrip)
+router.delete("/deleteTrip/:id",authCheck,ownerCheck, deleteTrip)
 router.post("/tripBy", listTrip)
 router.post("/search", searchFilters)//ใช้
 router.get("/getLocationById/:id",getLocationById)//ใช้

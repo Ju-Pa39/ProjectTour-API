@@ -12,7 +12,24 @@ cloudinary.config({
 // สร้างบริษัททัวร์
 exports.postTour = async (req, res) => {
     try {
-        const { name, tourNumber, line, phoneNumber, userId } = req.body
+        const { name, tourNumber, line, phoneNumber, userId } = req.body;
+        console.log("Request body:", req.body);
+
+        // Validate input
+        if (!name || !tourNumber || !line || !phoneNumber || !userId) {
+            return res.status(400).json({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+        }
+
+        // Check if tourNumber is unique (ถ้าจำเป็น)
+        const existingTour = await prisma.tourCompany.findFirst({
+            where: { tourNumber }
+        });
+
+        if (existingTour) {
+            return res.status(400).json({ message: "หมายเลขทัวร์นี้ถูกใช้งานแล้ว" });
+        }
+
+        // Create new tour company
         const tour = await prisma.tourCompany.create({
             data: {
                 userId: +userId,
@@ -21,13 +38,15 @@ exports.postTour = async (req, res) => {
                 line,
                 phoneNumber
             }
-        })
-        res.status(201).json({ message: "Tour created successfully" })
+        });
+
+        res.status(201).json({ message: "สร้างบริษัททัวร์เรียบร้อย", tour });
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Server Error" })
+        console.error("Error creating tour company:", err);
+        res.status(500).json({ message: "เกิดข้อผิดพลาดในระบบ" });
     }
-}
+};
+
 
 exports.getTour = async (req, res) => {
     try {
@@ -43,23 +62,34 @@ exports.getTour = async (req, res) => {
 
 exports.getTourById = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params;
         const tour = await prisma.tourCompany.findUnique({
             where: {
                 id: +id
             }
-        })
-        res.status(200).json({ tour })
+        });
+
+        if (!tour) {
+            return res.status(404).json({ message: "ไม่พบบริษัททัวร์ที่มี ID นี้" });
+        }
+
+        res.status(200).json({ tour });
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Server Error" })
+        console.log(err);
+        res.status(500).json({ message: "เกิดข้อผิดพลาดในระบบ" });
     }
 }
-
 exports.updateTour = async (req, res) => {
     try {
-        const { id } = req.params
-        const { name, tourNumber, line, phoneNumber, userId } = req.body
+        const { id } = req.params;
+        const { name, tourNumber, line, phoneNumber, userId } = req.body;
+        console.log("Request body:", req.body);
+
+        // Validate input
+        if (!name || !tourNumber || !line || !phoneNumber || !userId) {
+            return res.status(400).json({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+        }
+
         const tour = await prisma.tourCompany.update({
             where: {
                 id: +id
@@ -71,11 +101,12 @@ exports.updateTour = async (req, res) => {
                 phoneNumber,
                 userId: +userId
             }
-        })
-        res.status(200).json({ message: "Tour updated successfully" })
+        });
+
+        res.status(200).json({ message: "Tour updated successfully", tour });
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Server Error" })
+        console.log(err);
+        res.status(500).json({ message: "Server Error" });
     }
 }
 
@@ -95,8 +126,6 @@ exports.deleteTour = async (req, res) => {
 }
 
 
-
-
 // สร้างบริษัททริปเพื่อเปป็นข้อมูลให้ลูกค้าเลือก
 exports.postTrip = async (req, res) => {
     try {
@@ -108,7 +137,7 @@ exports.postTrip = async (req, res) => {
                 tourCompanyId: +tour,
                 detail: details,
                 price: +price,
-                quantity,
+                quantity: +quantity,
                 startdate: new Date(startDate),
                 enddate: new Date(endDate),
                 Image: {
@@ -130,7 +159,13 @@ exports.postTrip = async (req, res) => {
 
 exports.getTrip = async (req, res) => {
     try {
+        const today = new Date();
         const trip = await prisma.trip.findMany({
+            where: {
+                startdate: {
+                    gte: today  // กรองทริปที่ startdate มากกว่าหรือเท่ากับวันที่ปัจจุบัน
+                }
+            },
             include: {
                 location: true,
                 tourCompany: true
@@ -167,6 +202,7 @@ exports.updateTrip = async (req, res) => {
     try {
         const { id } = req.params
         const { location_Id, tourCompany_Id, detail, price, quantity, startdate, enddate, image } = req.body
+        console.log(req.body)
         const trip = await prisma.trip.update({
             where: {
                 id: +id
@@ -176,9 +212,9 @@ exports.updateTrip = async (req, res) => {
                 tourCompanyId: +tourCompany_Id,
                 detail,
                 price,
-                quantity,
-                startdate: new Date(Date.now()),
-                enddate: new Date(Date.now()),
+                quantity: +quantity,
+                startdate: new Date(startdate),
+                enddate: new Date(enddate),
                 // startdate: new Date(startdate), // ตรวจสอบว่ามีค่าและแปลงเป็น Date
                 // enddate: new Date(enddate)
                 Image: {
@@ -194,7 +230,7 @@ exports.updateTrip = async (req, res) => {
         res.status(200).json({ message: "Trip updated successfully" })
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Server Error" })
+        res.status(500).json({ message: "Server updateTrip Error" })
     }
 }
 
@@ -321,7 +357,6 @@ exports.searchFilters = async (req, res) => {
     }
 }
 
-
 //ใช้ตอนกดการ์ดเลือกสถานที่หลัง search
 exports.getLocationById = async (req, res) => {
     try {
@@ -419,35 +454,6 @@ exports.removeImage = async (req, res) => {
         res.status(500).json({ message: "Server Error" })
     }
 }
-
-// exports.getUpcomingTrip = async (req, res) => {
-//     try {
-//         const currentDate = new Date();
-
-//         // Query trips that are after the current date and order by start date (ascending)
-//         const trip = await prisma.trip.findMany({
-//             where: {
-//                 startDate: {
-//                     gte: currentDate // ดึงข้อมูลทริปที่เริ่มหลังจากวันนี้
-//                 }
-//             },
-//             include: {
-//                 location: true,
-//                 tourCompany: true
-//             },
-//             orderBy: {
-//                 startDate: 'asc' // เรียงลำดับจากวันที่ใกล้ถึงที่สุด
-//             },
-//             take: 1 // จำกัดผลลัพธ์ให้ได้เพียง 1 รายการ
-//         })
-
-//         res.status(200).json({ trip })
-//     } catch (err) {
-//         console.log(err)
-//         res.status(500).json({ message: "Server getUpcomingTrip Error" })
-//     }
-// }
-
 
 exports.getUpcomingTrip = async (req, res) => {
     try {
