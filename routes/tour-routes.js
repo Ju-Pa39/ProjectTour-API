@@ -5,7 +5,6 @@ const { postTour, getTour, updateTour, deleteTour, postTrip, getTrip, updateTrip
     deleteTrip, getTripById,listTrip,searchFilters, getLocationById, getTripByDate, 
     getLocation, createImages, removeImage, getUpcomingTrip } = require("../controllers/tour-controller")
 
-
 //Tour
 router.post("/createTour",authCheck,ownerCheck, postTour)
 router.get("/getTour",authCheck,ownerCheck, getTour)//ใช้
@@ -24,7 +23,6 @@ router.get("/getLocationById/:id",getLocationById)//ใช้
 router.get("/getTripByDate",getTripByDate)//ใช้
 router.get("/getLocation",getLocation)//ใช้
 router.get("/getUpcomingTrip",getUpcomingTrip)
-
 
 router.post('/images', createImages)//ใช้
 router.post('/removeimages', removeImage)//ใช้

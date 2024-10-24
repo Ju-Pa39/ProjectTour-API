@@ -115,7 +115,7 @@ exports.login = async (req, res) => {
 }
 
 
-exports.currentUser = async (req, res) => {
+exports.currentUser2 = async (req, res) => {
     try {
         res.send('hello current user')
     }catch (err) {
@@ -123,3 +123,23 @@ exports.currentUser = async (req, res) => {
         res.status(500).json({mssage : 'Sever Error'})
     }
 }
+
+exports.currentUser = (req, res) => {
+    try {
+      const user = req.user; // สมมติว่าคุณใส่ข้อมูล user ไว้ใน req.user จาก middleware
+      if (!user || !user.email) {
+        return res.status(400).json({ error: "User data is missing" });
+      }
+  
+      res.json({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        phone: user.phone,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error" });
+    }
+  };

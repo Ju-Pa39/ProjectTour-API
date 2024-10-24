@@ -202,7 +202,12 @@ exports.updateTrip = async (req, res) => {
     try {
         const { id } = req.params
         const { location_Id, tourCompany_Id, detail, price, quantity, startdate, enddate, image } = req.body
-        console.log(req.body)
+        console.log("Check body -->",req.body)
+        await prisma.image.deleteMany({
+            where: {
+                tripId: +id
+            }
+        })
         const trip = await prisma.trip.update({
             where: {
                 id: +id
@@ -210,23 +215,24 @@ exports.updateTrip = async (req, res) => {
             data: {
                 locationId: +location_Id,
                 tourCompanyId: +tourCompany_Id,
-                detail,
-                price,
-                quantity: +quantity,
+                detail : detail,
+                price : +price,
+                quantity: parseInt(quantity),
                 startdate: new Date(startdate),
                 enddate: new Date(enddate),
                 // startdate: new Date(startdate), // ตรวจสอบว่ามีค่าและแปลงเป็น Date
                 // enddate: new Date(enddate)
                 Image: {
                     create: image.map((item) => ({
-                        assetId: item.assetId,
-                        publicId: item.publicId,
+                        assetId: item.asset_id,
+                        publicId: item.public_id,
                         url: item.url,
-                        secureUrl: item.secureUrl,
+                        secureUrl: item.secure_url,
                     }))
                 }
             }
         })
+        console.log("Check trip -->",trip)
         res.status(200).json({ message: "Trip updated successfully" })
     } catch (err) {
         console.log(err)

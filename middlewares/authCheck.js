@@ -22,8 +22,10 @@ exports.authCheck = (req,res,next)=>{
 }
 
 exports.ownerCheck = (req,res,next)=>{
+    console.log(req.user)
     try{
         if(req.user.role !== 'OWNER'){
+    
             return res.status(401).json({message:"Role not Owner"})
         }
         next()
